@@ -23,11 +23,13 @@ def load_csv(file):
 # Load from local file
 
 class Section(Enum):
+    ComplexCodeEval = "ComplexCodeEval"
     RepoBench = "RepoBench"
     CodeQA = "CodeQA"
 section = st.radio("Select dataset", list(Section))
 
 def render_repobench():
+    st.subheader("RepoBench")
     local_file_path = "samples.jsonl"
     if os.path.isfile(local_file_path):
         file = open(local_file_path, 'rb')
@@ -83,10 +85,114 @@ def render_repobench():
         st.code(sample.get("golden_response", ""), language="python")  # Adjust language as needed
 
 
+def render_codeqa():
+    st.subheader("CodeQA")
+    local_file_path = "codeqa_samples.jsonl"
+    if os.path.isfile(local_file_path):
+        file = open(local_file_path, 'rb')
+    else:
+        st.error('Local file not found.')
+    if file.name.endswith(".jsonl"):
+        samples = load_jsonl(file)
+    else:
+        raise Exception("Unsupported file type")
+    sample_idx = st.slider("Choose a sample", 0, len(samples) - 1, 0)
+    sample = samples[sample_idx]
+    st.subheader("Code")
+    st.code(sample.get("code", ""), language="python")  # Python syntax highlighting
+
+    st.subheader("Prettified code")
+    st.markdown(f"_{"I used GPT-4 to format the poorly formatted code above in the dataset ^"}_")
+    st.code(sample.get("formatted_code", ""), language="python")  # Python syntax highlighting
+
+    st.subheader("Question")
+    st.write(sample.get("question", ""))
+    
+    st.subheader("Answer")
+    st.write(sample.get("golden_answer", ""))
+
+def render_codeqa():
+    st.subheader("CodeQA")
+    local_file_path = "codeqa_samples.jsonl"
+    if os.path.isfile(local_file_path):
+        file = open(local_file_path, 'rb')
+    else:
+        st.error('Local file not found.')
+    if file.name.endswith(".jsonl"):
+        samples = load_jsonl(file)
+    else:
+        raise Exception("Unsupported file type")
+    sample_idx = st.slider("Choose a sample", 0, len(samples) - 1, 0)
+    sample = samples[sample_idx]
+    st.subheader("Code")
+    st.code(sample.get("code", ""), language="python")  # Python syntax highlighting
+
+    st.subheader("Prettified code")
+    st.markdown(f"_{"I used GPT-4 to format the poorly formatted code above in the dataset ^"}_")
+    st.code(sample.get("formatted_code", ""), language="python")  # Python syntax highlighting
+
+    st.subheader("Question")
+    st.write(sample.get("question", ""))
+    
+    st.subheader("Answer")
+    st.write(sample.get("golden_answer", ""))
+
+def render_complex_code_eval():
+    st.subheader("ComplexCodeEval")
+    local_file_path = "ComplexCodeEval-Python-Sampled.json"
+    if os.path.isfile(local_file_path):
+        file = open(local_file_path, 'rb')
+    dataset = load_jsonl(file)
+    sampled_indices = np.random.choice(len(dataset), 100, replace=False)
+    filtered_dataset = []
+    for index in sampled_indices:
+        filtered_dataset.append(dataset[index])
+    samples = filtered_dataset
+    sample_idx = st.slider("Choose a sample", 0, len(samples) - 1, 0)
+    sample = samples[sample_idx]
+
+    st.subheader("Metadata")
+    metadata = f"""
+    Project: {sample["git_name"]} \n 
+    Version: {sample["version"]} \n 
+    File path: {sample["file_path"]} \n 
+    File create time: {sample["file_create_time"]} \n 
+    Function update time: {sample["function_update_time"]}
+    """
+    st.write(metadata)
+    st.subheader("Prompt")
+    prompt = sample["function_signature"] + "\n" + sample["prompt"]
+    st.code(prompt)
+    st.write("**Dependency hints**")
+    st.write(sample["function_dependencies"])
+
+    st.subheader("Golden answer")
+    st.code(sample["solution"])
+
+    st.subheader("Context (for code completion)")
+    st.write("**Context before**")
+    st.code(sample["left_context"])
+    st.write("**Context after**")
+    st.code(sample["right_context"])
+
+
+    st.subheader("Tests")
+    for test in sample["test_function"]:
+        st.write("**Test name**")
+        st.code(test["function_name"])
+        st.write("**Test implementation**")
+        st.code(test["code"])
+
+    
+
+
+
 if section == Section.RepoBench:
     render_repobench()
 elif section == Section.CodeQA:
-    st.subheader("CodeQA")
+    render_codeqa()
+elif section == Section.ComplexCodeEval:
+    render_complex_code_eval()
 else:
     st.error("Invalid section selected.")
     st.stop()
