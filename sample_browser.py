@@ -26,7 +26,7 @@ class Section(Enum):
     ComplexCodeEval = "ComplexCodeEval"
     RepoBench = "RepoBench"
     CodeQA = "CodeQA"
-section = st.radio("Select dataset", list(Section))
+section = st.radio("Select dataset", [member.value for member in Section])
 
 def render_repobench():
     st.subheader("RepoBench")
@@ -182,11 +182,11 @@ def render_complex_code_eval():
 
 
 
-if section == Section.RepoBench:
+if section == Section.RepoBench.value:
     render_repobench()
-elif section == Section.CodeQA:
+elif section == Section.CodeQA.value:
     render_codeqa()
-elif section == Section.ComplexCodeEval:
+elif section == Section.ComplexCodeEval.value:
     render_complex_code_eval()
 else:
     st.error("Invalid section selected.")
