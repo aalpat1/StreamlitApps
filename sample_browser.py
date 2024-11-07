@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 import jsonlines
+import os
 
 # Function to load .jsonl file
 def load_jsonl(file):
@@ -15,9 +16,15 @@ def load_csv(file):
     return data.to_dict(orient='records')
 
 # Upload file
-st.title("Evaluation Samples Viewer")
-file = st.file_uploader("Upload a .jsonl or .csv file", type=["jsonl", "csv"])
+# st.title("Evaluation Samples Viewer")
+# file = st.file_uploader("Upload a .jsonl or .csv file", type=["jsonl", "csv"])
 
+# Load from local file
+local_file_path = "samples.jsonl"
+if os.path.isfile(local_file_path):
+    file = open(local_file_path, 'rb')
+else:
+    st.error('Local file not found.')
 if file:
     # Load data based on file type
     if file.name.endswith(".jsonl"):
