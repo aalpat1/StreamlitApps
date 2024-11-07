@@ -142,12 +142,7 @@ def render_complex_code_eval():
     local_file_path = "ComplexCodeEval-Python-Sampled.json"
     if os.path.isfile(local_file_path):
         file = open(local_file_path, 'rb')
-    dataset = load_jsonl(file)
-    sampled_indices = np.random.choice(len(dataset), 100, replace=False)
-    filtered_dataset = []
-    for index in sampled_indices:
-        filtered_dataset.append(dataset[index])
-    samples = filtered_dataset
+    samples = load_jsonl(file)
     sample_idx = st.slider("Choose a sample", 0, len(samples) - 1, 0)
     sample = samples[sample_idx]
 
