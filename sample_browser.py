@@ -26,6 +26,10 @@ class Section(Enum):
     ComplexCodeEval = "ComplexCodeEval"
     RepoBench = "RepoBench"
     CodeQA = "CodeQA"
+    BigCodeBench = "BigCodeBench"
+    WinoLogic = "Winologic"
+    CruxEval = "CruxEval"
+
 section = st.radio("Select dataset", [member.value for member in Section])
 
 def render_repobench():
@@ -137,6 +141,42 @@ def render_codeqa():
     st.subheader("Answer")
     st.write(sample.get("golden_answer", ""))
 
+def render_bigcode_bench():
+    st.subheader("BigCodeBench")
+    uploaded_file = "bigcodebench-v0.1.2-00000-of-00001.parquet"
+    samples = pd.read_parquet(uploaded_file)
+
+    st.subheader("Samples for - " + uploaded_file)
+    sample_idx = st.slider("Choose a sample", 0, len(samples) - 1, 0)
+    sample = samples.iloc[sample_idx]
+
+    for col_name, col_value in sample.items():
+        st.header(col_name)
+        st.code(col_value)
+
+def render_cruxeval():
+    st.subheader("CruxEval")
+    jsonl_file = "cruxeval.jsonl"
+    samples = pd.read_json(jsonl_file, lines=True)
+
+    sample_idx = st.slider("Choose a sample", 0, len(samples) - 1, 0)
+    sample = samples.iloc[sample_idx]
+    for col_name, col_value in sample.items():
+        st.header(col_name)
+        st.code(col_value)
+
+def render_winologic():
+    st.subheader("Winologic")
+    jsonl_file = "winologic.jsonl"
+    samples = pd.read_json(jsonl_file, lines=True)
+
+    sample_idx = st.slider("Choose a sample", 0, len(samples) - 1, 0)
+    sample = samples.iloc[sample_idx]
+    for col_name, col_value in sample.items():
+        st.header(col_name)
+        st.code(col_value)
+
+
 def render_complex_code_eval():
     st.subheader("ComplexCodeEval")
     local_file_path = "ComplexCodeEval-Python-Sampled.json"
@@ -188,6 +228,12 @@ elif section == Section.CodeQA.value:
     render_codeqa()
 elif section == Section.ComplexCodeEval.value:
     render_complex_code_eval()
+elif section == Section.BigCodeBench.value:
+    render_bigcode_bench()
+elif section == Section.WinoLogic.value:
+    render_winologic()
+elif section == Section.CruxEval.value:
+    render_cruxeval()
 else:
     st.error("Invalid section selected.")
     st.stop()
